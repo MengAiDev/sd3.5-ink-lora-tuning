@@ -8,9 +8,8 @@ datasets==2.19.1
 safetensors==0.4.3
 pillow==10.3.0
 tqdm==4.66.2
-huggingface-hub==0.23.0
+huggingface-hub>=0.23.0
 requests==2.32.3
 beautifulsoup4==4.12.3
 tqdm==4.66.2
-aiohttp
-async-timeout
+modelscope

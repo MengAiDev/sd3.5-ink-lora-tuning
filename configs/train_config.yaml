@@ -1,0 +1,16 @@
+model: "stabilityai/stable-diffusion-3-medium-diffusers"
+resolution: 1024
+batch_size: 2
+gradient_accumulation_steps: 4
+learning_rate: 3e-4
+lr_scheduler: "cosine"
+lr_warmup_steps: 100
+max_train_steps: 800
+mixed_precision: "fp16"
+lora_rank: 8
+lora_alpha: 32
+lora_dropout: 0.05
+target_modules: ["to_q", "to_v"]
+seed: 42
+output_dir: "./output"
+dataset_path: "ink_dataset/resized_images"
