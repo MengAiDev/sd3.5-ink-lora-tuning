@@ -13,4 +13,4 @@ lora_dropout: 0.05
 target_modules: ["to_q", "to_v"]
 seed: 42
 output_dir: "./output"
-dataset_path: "ink_dataset/resized_images"
+dataset_path: "SD3FinetuneChineseInk/resized_images"
