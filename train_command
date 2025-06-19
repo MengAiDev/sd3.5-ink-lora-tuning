@@ -13,4 +13,20 @@ cd examples/dreambooth && pip install -r requirements_sd3.txt
 modelscope download --model AI-ModelScope/stable-diffusion-3.5-medium --local_dir /mnt/workspace/stable-diffusion-3.5-medium
 modelscope download --dataset MengAiDev/SD3FinetuneChineseInk --local_dir /mnt/workspace/SD3FinetuneChineseInk
 
-accelerate launch train_dreambooth_lora_sd3.py --pretrained_model_name_or_path= "/mnt/workspace/table-diffusion-3.5-medium" --instance_data_dir= "/mnt/workspace/SD3FinetuneChineseInk/resized_images"  --output_dir= "/mnt/workspace/trained-sd3-lora" --mixed_precision="fp16"  --instance_prompt="chinese ink painting"  --resolution=512 --train_batch_size=2  --gradient_accumulation_steps=4 --learning_rate=1e-5 --report_to="wandb" --lr_scheduler="constant" --lr_warmup_steps=0 --max_train_steps=500 --validation_prompt="A picture of chinese ink painting" --validation_epochs=25 --seed="0"   
+accelerate launch train_dreambooth_lora_sd3.py \
+  --pretrained_model_name_or_path="/mnt/workspace/table-diffusion-3.5-medium" \
+  --instance_data_dir="/mnt/workspace/SD3FinetuneChineseInk/resized_images" \
+  --output_dir="/mnt/workspace/trained-sd3-lora" \
+  --mixed_precision="fp16" \
+  --instance_prompt="chinese ink painting" \
+  --resolution=512 \
+  --train_batch_size=2 \
+  --gradient_accumulation_steps=4 \
+  --learning_rate=1e-5 \
+  --report_to="wandb" \
+  --lr_scheduler="constant" \
+  --lr_warmup_steps=0 \
+  --max_train_steps=500 \
+  --validation_prompt="A picture of chinese ink painting" \
+  --validation_epochs=25 \
+  --seed="0"
