@@ -14,9 +14,9 @@ modelscope download --model AI-ModelScope/stable-diffusion-3.5-medium --local_di
 modelscope download --dataset MengAiDev/SD3FinetuneChineseInk --local_dir /mnt/workspace/SD3FinetuneChineseInk
 
 accelerate launch train_dreambooth_lora_sd3.py \
-  --pretrained_model_name_or_path= "/mnt/workspaces/table-diffusion-3.5-medium"\
-  --instance_data_dir= "/mnt/workspaces/SD3FinetuneChineseInk" \
-  --output_dir= "/mnt/workspaces/trained-sd3-lora"
+  --pretrained_model_name_or_path= "/mnt/workspace/table-diffusion-3.5-medium"\
+  --instance_data_dir= "/mnt/workspace/SD3FinetuneChineseInk/resized_images" \
+  --output_dir= "/mnt/workspace/trained-sd3-lora"
   --mixed_precision="fp16" \
   --instance_prompt="chinese ink painting" \
   --resolution=512 \
