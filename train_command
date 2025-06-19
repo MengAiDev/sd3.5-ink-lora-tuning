@@ -10,7 +10,7 @@ git clone https://github.com/huggingface/diffusers && cd diffusers && pip instal
 
 cd examples/dreambooth && pip install -r requirements_sd3.txt
 
-modelscope download --model AI-ModelScope/stable-diffusion-3.5-medium --local_dir /mnt/workspaces/table-diffusion-3.5-medium
+modelscope download --model AI-ModelScope/stable-diffusion-3.5-medium --local_dir /mnt/workspaces/stable-diffusion-3.5-medium
 modelscope download --dataset MengAiDev/SD3FinetuneChineseInk --local_dir /mnt/workspaces/SD3FinetuneChineseInk
 
 accelerate launch train_dreambooth_lora_sd3.py \
