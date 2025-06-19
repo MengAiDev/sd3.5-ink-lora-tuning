@@ -4,13 +4,17 @@
 python -m venv .env
 source .env/bin/activate
 
-pip install peft datasets huggingface_hub wandb bitsandbytes pillow git+https://github.com/huggingface/transformers accelerate sentencepiece
+pip install peft datasets huggingface_hub wandb bitsandbytes pillow git+https://githubfast.com/huggingface/transformers accelerate sentencepiece
 
-git clone https://github.com/huggingface/diffusers && cd diffusers && pip install -e .
+git clone https://githubfast.com/huggingface/diffusers && cd diffusers && pip install -e .
 
 cd examples/dreambooth && pip install -r requirements_sd3.txt
 
-modelscope download --model AI-ModelScope/stable-diffusion-3.5-medium --local_dir /workspace/stable-diffusion-3.5-medium
-modelscope download --dataset MengAiDev/SD3FinetuneChineseInk --local_dir /workspace/SD3FinetuneChineseInk
+pip install modelscope
 
-accelerate launch --mixed_precision="fp16" --num_processes=1 --dynamo_backend="no" train_dreambooth_lora_sd3.py --pretrained_model_name_or_path="/workspace/stable-diffusion-3.5-medium" --instance_data_dir="/workspace/SD3FinetuneChineseInk/resized_images" --output_dir="/workspace/trained-sd3-lora" --instance_prompt="chinese ink painting" --resolution=512 --train_batch_size=2 --gradient_accumulation_steps=4 --gradient_checkpointing --use_8bit_adam --set_grads_to_none --learning_rate=1e-5 --report_to="wandb" --lr_scheduler="constant" --lr_warmup_steps=0 --max_train_steps=500 --validation_prompt="A picture of chinese ink painting" --validation_epochs=25 --seed="0" --cache_latents --enable_xformers_memory_efficient_attention
+modelscope download --model AI-ModelScope/stable-diffusion-3.5-medium --local_dir /stable-diffusion-3.5-medium
+modelscope download --dataset MengAiDev/SD3FinetuneChineseInk --local_dir /SD3FinetuneChineseInk
+
+pip install --upgrade peft>=0.15.0
+
+accelerate launch --mixed_precision="fp16" --num_processes=1 --dynamo_backend="no" train_dreambooth_lora_sd3.py --pretrained_model_name_or_path="/stable-diffusion-3.5-medium" --instance_data_dir="/SD3FinetuneChineseInk/resized_images" --output_dir="/workspace/trained-sd3-lora" --instance_prompt="chinese ink painting" --resolution=512 --train_batch_size=2 --gradient_accumulation_steps=4 --gradient_checkpointing --use_8bit_adam --learning_rate=1e-5 --report_to="wandb" --lr_scheduler="constant" --lr_warmup_steps=0 --max_train_steps=500 --validation_prompt="A picture of chinese ink painting" --validation_epochs=25 --seed="0" --cache_latents
