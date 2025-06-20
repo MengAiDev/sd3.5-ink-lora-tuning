@@ -1,6 +1,6 @@
 import torch
 import diffusers
-from modelscope import StableDiffusionPipeline
+from modelscope import StableDiffusion3Pipeline
 from diffusers.utils import logging
 
 # 启用详细日志（可选）
@@ -15,7 +15,7 @@ NEGATIVE_PROMPT = "photorealistic, 3D render, oil painting, bright colors,  hype
 OUTPUT_FILE = "lora_output.png"
 
 # 2. 加载基础模型 + LoRA
-pipe = StableDiffusionPipeline.from_pretrained(
+pipe = StableDiffusion3Pipeline.from_pretrained(
     MODEL_NAME,
     torch_dtype=torch.float16,  # 半精度节省显存
     safety_checker=None,        # 可选：禁用安全检查（加快推理）
