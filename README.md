@@ -20,6 +20,13 @@ For optimal results, use the following parameters:
 | **CFG Scale** | `5.5-7.0` | Avoid over-saturation |  
 | **Clip Skip** | `2` | Enhances stylistic adherence |  
 
+You can also inference with generate_ink.py:
+```
+modelscope download --model MengAiDev/SD3FinetuneChineseInk  pytorch_lora_weights.safetensors --local_dir ./sd3_model
+python generate_ink.py
+```
+
+
 ### **🎨 Key Prompt Engineering**  
 #### **Positive Prompt (Mandatory Elements)**  
 ```  
