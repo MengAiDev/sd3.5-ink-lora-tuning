@@ -1,74 +1,47 @@
 import torch
-import os
+import diffusers
+from modelscope import StableDiffusionPipeline
+from diffusers.utils import logging
 
-from modelscope import StableDiffusion3Pipeline  # type: ignore
-from diffusers.schedulers.scheduling_ddim import DDIMScheduler
-from training.lora_utils import inject_lora_into_unet
+# 启用详细日志（可选）
+logging.set_verbosity_info()
 
-def load_lora_weights(unet, lora_path):
-    """加载LoRA权重"""
-    from safetensors.torch import load_file
-    lora_state_dict = load_file(os.path.join(lora_path, "lora_weights.safetensors"))
-    
-    # 应用LoRA权重
-    for name, param in unet.named_parameters():
-        for lora_name in lora_state_dict.keys():
-            if lora_name in name:
-                # 创建LoRA层（如果不存在）
-                if not hasattr(param, "lora_layer"):
-                    # 这里需要根据层类型创建对应的LoRA层
-                    # 简化实现，实际需要更复杂的映射
-                    setattr(param, "lora_layer", torch.nn.Linear(
-                        param.shape[1], param.shape[0], bias=False
-                    ).to(param.device))
-                
-                # 加载权重
-                getattr(param, "lora_layer").weight.data = lora_state_dict[lora_name]
-                break
-    
-    return unet
+# 1. 配置参数
+MODEL_NAME = "AI-ModelScope/stable-diffusion-3.5-medium"  # 基础模型（需与微调时一致）
+LORA_PATH = "./sd3_model"                      # LoRA权重所在目录
+LORA_WEIGHT_NAME = "pytorch_lora_weights.safetensors"
+PROMPT = "Chinese ink painting, {subject: mountains|bamboo|birds|scholars},  brushstroke texture, ink wash gradients, empty space,  subtle mist effect, aged paper texture, {style: Song Dynasty|Ukiyo-e}, seal stamp, calligraphic inscription  "  # 替换为你的触发词+提示
+NEGATIVE_PROMPT = "photorealistic, 3D render, oil painting, bright colors,  hyperdetailed, Western art, anime, digital art  "
+OUTPUT_FILE = "lora_output.png"
 
-def generate_ink_painting(
-    prompt, 
-    lora_path, 
-    model_name="stabilityai/stable-diffusion-3-medium-diffusers",
-    negative_prompt=None,
-    height=1024,
-    width=1024,
-    num_steps=30,
-    guidance_scale=7.0,
-    lora_scale=0.8,
-    seed=42
-):
-    # 加载基础模型
-    pipe = StableDiffusion3Pipeline.from_pretrained(
-        model_name,
-        torch_dtype=torch.float16,
-        variant="fp16"
-    ).to("cuda")
-    
-    # 注入LoRA
-    pipe.unet = inject_lora_into_unet(pipe.unet)
-    
-    # 加载LoRA权重
-    pipe.unet = load_lora_weights(pipe.unet, lora_path)
-    
-    # 设置采样器
-    pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
-    
-    # 生成图像
-    generator = torch.Generator("cuda").manual_seed(seed)
-    image = pipe(
-        prompt=prompt,
-        negative_prompt=negative_prompt or "photorealistic, oil painting, bright colors, signature, text",
-        height=height,
-        width=width,
-        num_inference_steps=num_steps,
-        guidance_scale=guidance_scale,
-        generator=generator,
-        cross_attention_kwargs={"scale": lora_scale}  # LoRA权重强度
-    ).images[0]
-    
-    return image
+# 2. 加载基础模型 + LoRA
+pipe = StableDiffusionPipeline.from_pretrained(
+    MODEL_NAME,
+    torch_dtype=torch.float16,  # 半精度节省显存
+    safety_checker=None,        # 可选：禁用安全检查（加快推理）
+).to("cuda")
 
-# 使用方式保持不变
+# 注入LoRA权重（注意：sd3_model是目录，pytorch_lora_weights.safetensors是文件名）
+pipe.load_lora_weights(LORA_PATH, weight_name=LORA_WEIGHT_NAME)
+
+# 可选：调整LoRA强度（默认1.0，范围0~1.5）
+lora_scale = 0.8
+cross_attention_kwargs = {"scale": lora_scale}
+
+# 3. 生成图像
+generator = torch.Generator("cuda").manual_seed(42)  # 固定随机种子（可选）
+
+image = pipe(
+    prompt=PROMPT,
+    negative_prompt=NEGATIVE_PROMPT,
+    num_inference_steps=30,
+    guidance_scale=7.5,
+    width=512,
+    height=512,
+    generator=generator,
+    cross_attention_kwargs=cross_attention_kwargs  # 控制LoRA强度
+).images[0]
+
+# 4. 保存结果
+image.save(OUTPUT_FILE)
+print(f"Generated image saved to {OUTPUT_FILE}")
